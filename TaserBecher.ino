@@ -34,6 +34,7 @@ unsigned long startTime, inputTimeUL, remainingTime, finishTime;
 char *remainingTimeStr;
 const char *inputTime;
 int dataAddr = 0;
+bool gameStart = false;
 competitor_t dataArray[25];
 
 ESP8266WebServer server(80);
@@ -52,6 +53,7 @@ void webpage() {
   server.send(200, "text/html", "<html><body><form  name='frm'  method='post'>  Name: <input type='text' name='fname'><br>Time(ms): <input type='number' name='inputTime'><br><input type='submit' value='Start'>   </form></body></html>");
 }
 
+
 void response(){
   if(server.hasArg("fname") && (server.arg("fname").length()>0)&&server.hasArg("inputTime") && (server.arg("inputTime").length()>0)){ 
     Serial.print("User entered:\t");
@@ -62,36 +64,15 @@ void response(){
     competitor_t data;
     strcpy(data.fname, fname.c_str());
     data.inputTime = inputTimeUL;
-    writeToEEPROM(&data);
+    //writeToEEPROM(&data);
     
     server.send(200, "text/html", "<html><body><h1>The Game is Starting</h1><body><p>Contestant: " + fname +  "</p><p>Time(ms):" + inputTime + "</p><a href='/'>Home</a></body></html><\body>");
-    //print 3
-    //beep
-    //print 2
-    //beep
-    //print 1
-    //beep
-    
-    finishTime = millis() + inputTimeUL;
-    /*
-    while(millis()<finishTime){
-      remainingTime = finishTime - millis();
-      sprintf(remainingTimeStr, "%lu.%lu", remainingTime/1000, remainingTime%1000);
-      u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"remainingTimeStr");
-      u8g2.sendBuffer();
-      if(analogRead(A0)<=100){
-        break;
-      }
-    }
-    */
-    digitalWrite(D4, LOW);
-    delay(250);   //ms
-    digitalWrite(D4, HIGH);
   } else {
     server.send(400, "text/html", "<html><body><h1>HTTP Error 400</h1><p>Bad request. Please enter a value.</p></body></html>");
   }
+    gameStart = true;
 }
+
 
 
 void handleShock(){
@@ -141,4 +122,30 @@ void setup() {
 
 void loop() {
   server.handleClient();
+  if(gameStart==true){
+    gameStart = false;
+    //print 3
+    //beep
+    //print 2
+    //beep
+    //print 1
+    //beep
+    
+    finishTime = millis() + inputTimeUL;
+    
+    while(millis()<finishTime){
+     /* remainingTime = finishTime - millis();
+      sprintf(remainingTimeStr, "%lu.%lu", remainingTime/1000, remainingTime%1000);
+      u8g2.clearBuffer();
+      u8g2.drawStr(0,20,"remainingTimeStr");
+      u8g2.sendBuffer();
+      if(analogRead(A0)<=100){
+        break;
+      }*/
+    }
+    
+    digitalWrite(D4, LOW);
+    delay(250);   //ms
+    digitalWrite(D4, HIGH);
+  }
 }
