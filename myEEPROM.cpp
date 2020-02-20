@@ -13,6 +13,7 @@ String convertToString(char* a, int size)
 } 
 
 void clearEEPROM(){
+  Serial.println("Clear EEPROM");
   competitor_t data;
   int dataAddr = 0;
   EEPROM.begin(4095);
@@ -28,6 +29,7 @@ void clearEEPROM(){
 }
 
 void writeToEEPROM(competitor_t * data){
+  Serial.println("Write to EEPROM");
   int dataAddr = 0;
   EEPROM.begin(4095);
   dataAddr = numCont*sizeof(*data);
@@ -39,6 +41,7 @@ void writeToEEPROM(competitor_t * data){
 }
 
 void loadEEPROM(competitor_t * dataArray){
+  Serial.println("Load EEPROM");
   int dataAddr = 0;
   numCont = 0;
   competitor_t data = EEPROM.get(dataAddr, data);
@@ -71,6 +74,8 @@ String EEPROMToHTML(competitor_t * dataArray){
   }
 
   msg += "<\t>";
+  Serial.println("EEPROM to HTML");
+  Serial.println(msg);
   return msg;
   
 }
