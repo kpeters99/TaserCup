@@ -196,7 +196,7 @@ void loop() {
       digitalWrite(relaysPin, HIGH);
       gameStart = Ready;
       u8g2.clearBuffer();
-      u8g2.drawStr(5,31,"LOSER");
+      u8g2.drawStr(5,31,"LOSE");
       u8g2.sendBuffer();
       Serial.println("Too slow"); 
     }
