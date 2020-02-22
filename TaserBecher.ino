@@ -21,14 +21,14 @@
 #endif
 
 #define buzzPin D8
-#define relaysPin D4
+#define relaysPin D7
 #define sensorPin A0
 
 
 //U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ 21, /* data=*/ 20, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather M0 Basic Proto + FeatherWing OLED
 //U8G2_SSD1306_128X32_UNIVISION_F_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // Adafruit Feather ESP8266/32u4 Boards + FeatherWing OLED
-U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);  // Adafruit ESP8266/32u4/ARM Boards + FeatherWing OLED
-//U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE, /* clock=*/ SCL, /* data=*/ SDA);   // pin remapping with ESP8266 HW I2C
+//U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);  // Adafruit ESP8266/32u4/ARM Boards + FeatherWing OLED
+U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R2, /* reset=*/ U8X8_PIN_NONE, /* clock=*/ SCL, /* data=*/ SDA);   // pin remapping with ESP8266 HW I2C SCL=D1 SCA=D2
 //U8G2_SSD1306_128X32_WINSTAR_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE, /* clock=*/ SCL, /* data=*/ SDA);   // pin remapping with ESP8266 HW I2C
 const char *ssid = APSSID;
 const char *password = APPSK;
@@ -123,7 +123,7 @@ void setup() {
   digitalWrite(relaysPin, HIGH);
 
   u8g2.begin();
-  u8g2.setFont(u8g2_font_ncenB14_tr);
+  u8g2.setFont(u8g2_font_fub30_tf);
 
   loadEEPROM(dataArray);
 }
@@ -135,10 +135,10 @@ void loop() {
       Serial.println("Countdown0");
       countdown = Three;
       u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"GO");
-      u8g2.sendBuffer();
-      finishTime = millis() + inputTimeUL;      
+      u8g2.drawStr(5,31,"GO");
+      u8g2.sendBuffer();    
       tone(buzzPin, 700);
+      finishTime = millis() + inputTimeUL;  
       delay(500);
       noTone(buzzPin); 
       gameStart = Running;
@@ -147,7 +147,7 @@ void loop() {
       Serial.println("Countdown1");
       countdown = Start;
       u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"1");
+      u8g2.drawStr(5,31,"1");
       u8g2.sendBuffer();
       tone(buzzPin, 300);
       delay(150);
@@ -157,7 +157,7 @@ void loop() {
       Serial.println("Countdown2");
       countdown = One;
       u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"2");
+      u8g2.drawStr(0,31,"2");
       u8g2.sendBuffer();  
       tone(buzzPin, 200);
       delay(150);
@@ -167,7 +167,7 @@ void loop() {
       Serial.println("Countdown3");
       countdown = Two;
       u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"3");
+      u8g2.drawStr(5,31,"3");
       u8g2.sendBuffer();    
       tone(buzzPin, 100);
       delay(150);
@@ -178,22 +178,26 @@ void loop() {
     Serial.println("GameStart"); 
     if(millis()<finishTime){
       remainingTime = finishTime - millis();
-     // sprintf(remainingTimeStr, "%i.%i", (int) remainingTime/1000, remainingTime%1000);         //Hier ist was kaputt
       remainingTimeStr = String((int) remainingTime/1000) + "." + String(remainingTime%1000);
+      Serial.println(remainingTimeStr);
       u8g2.clearBuffer();
-      u8g2.drawStr(0,20,"remainingTimeStr");
+      u8g2.drawStr(5,31,remainingTimeStr.c_str());
       u8g2.sendBuffer();
       Serial.println("2"); 
-      if(analogRead(sensorPin)<=100){
+      if(analogRead(sensorPin)<=500){     //Obacht
         gameStart = Ready;
         Serial.println("Win");
       }
+      Serial.println(analogRead(sensorPin));
     }
     else {
       digitalWrite(relaysPin, LOW);
       delay(250);   //ms
       digitalWrite(relaysPin, HIGH);
       gameStart = Ready;
+      u8g2.clearBuffer();
+      u8g2.drawStr(5,31,"LOSER");
+      u8g2.sendBuffer();
       Serial.println("Too slow"); 
     }
   }
